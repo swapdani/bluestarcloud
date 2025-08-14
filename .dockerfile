@@ -28,3 +28,15 @@ EXPOSE 8080
 
 # Run the application
 ENTRYPOINT ["java","-jar","app.jar"]
+
+# Copy Maven wrapper and pom.xml first (for caching dependencies)
+COPY mvnw .
+COPY mvnw.cmd .
+COPY .mvn .mvn
+COPY pom.xml .
+
+# Give execution permission to Maven wrapper
+RUN chmod +x mvnw
+
+# Download dependencies
+RUN ./mvnw dependency:go-offline -B
