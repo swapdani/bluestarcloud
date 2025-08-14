@@ -28,3 +28,6 @@ COPY --from=builder /app/target/*.jar app.jar
 # Render sets $PORT automatically; bind Spring Boot to it
 ENV PORT=8080
 EXPOSE 8080
+
+# Start the app
+ENTRYPOINT ["java", "-jar", "app.jar"]
