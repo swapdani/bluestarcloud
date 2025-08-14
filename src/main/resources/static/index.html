@@ -18,6 +18,7 @@
             border-radius: 10px;
             box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
             text-align: center;
+            width: 500px;
         }
         h1 {
             margin-bottom: 20px;
@@ -38,8 +39,9 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        button:hover {
-            background-color: #45a049;
+        button:disabled {
+            background-color: grey;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -48,39 +50,58 @@
 <div class="form-container">
   <h1>Upload & Process UFO Data</h1>
   <form id="uploadForm">
-    <label>Application</label><br>
+    <label>Text Parameter:</label><br>
     <input type="text" name="textParam" required><br>
 
     <label>Excel File:</label><br>
-    <input type="file" name="file" accept=".xlsx" required><br>
+    <input type="file" id="fileInput" name="file" accept=".xlsx" required><br>
 
-    <button type="submit">Upload & Process</button>
+    <button id="submitBtn" type="submit" disabled>Upload & Process</button>
   </form>
 </div>
 
 <script>
+        const fileInput = document.getElementById("fileInput");
+        const submitBtn = document.getElementById("submitBtn");
+
+        // Enable button only if a file is selected
+        fileInput.addEventListener("change", () => {
+            submitBtn.disabled = fileInput.files.length === 0;
+        });
+
         document.getElementById("uploadForm").addEventListener("submit", async (e) => {
             e.preventDefault();
 
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Processing...";
+
             let formData = new FormData(e.target);
 
-            let response = await fetch("/api/process", {
-                method: "POST",
-                body: formData
-            });
+            try {
+                let response = await fetch("/api/process", {
+                    method: "POST",
+                    body: formData
+                });
 
-            if (response.ok) {
-                let blob = await response.blob();
-                let url = window.URL.createObjectURL(blob);
+                if (response.ok) {
+                    let blob = await response.blob();
+                    let url = window.URL.createObjectURL(blob);
 
-                let a = document.createElement("a");
-                a.href = url;
-                a.download = "processed.xlsx";
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            } else {
-                alert("Error processing file");
+                    let a = document.createElement("a");
+                    a.href = url;
+                    a.download = "processed.xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                } else {
+                    alert("Error processing file");
+                }
+            } catch (err) {
+                alert("Network error");
+            } finally {
+                // Button will be enabled again only if file is still selected
+                submitBtn.textContent = "Upload & Process";
+                submitBtn.disabled = fileInput.files.length === 0;
             }
         });
     </script>
