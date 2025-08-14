@@ -1,0 +1,2 @@
+Build Command: ./mvnw clean install -DskipTests
+Start Command: java -jar target/bluestarcloud-0.0.1-SNAPSHOT.jar
