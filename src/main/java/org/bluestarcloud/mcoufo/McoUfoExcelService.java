@@ -53,8 +53,6 @@ public class McoUfoExcelService extends ExcelService {
         List<Map<String, String>> partAvailabilityRows = partAvailabilityData.getRows();
 
         partAvailabilityRows.forEach(part -> {
-            if (part.get("Material").equalsIgnoreCase("CZOT-1058") && part.get("Plant").equalsIgnoreCase("E06B"))
-                System.out.println("");
             PartAvailability partAvailability1 = new PartAvailability(part.get("Plant"), part.get("Storage location"), part.get("Material"),
                     part.get("Material description"), parseDoubleSafe(part.get("Unrestricted")));
             partAvailabilityList.add(partAvailability1);

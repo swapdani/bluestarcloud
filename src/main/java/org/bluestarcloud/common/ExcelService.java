@@ -36,8 +36,6 @@ public abstract class ExcelService {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
-                if (i == 66086)
-                    System.out.println();
                 Map<String, String> rowData = new HashMap<>();
 
                 for (int j = 0; j < headerRow.getLastCellNum(); j++) {
