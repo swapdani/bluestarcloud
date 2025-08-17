@@ -26,7 +26,6 @@ public abstract class ExcelService {
             sheet = workbook.getSheetAt(sheetIndex);
 
         }
-        logger.info("After closing workbook");
         Map<Integer, String> headerMap = new HashMap<>();
         Row headerRow = sheet.getRow(0);
         for (int c = 0; c < headerRow.getLastCellNum(); c++) {
