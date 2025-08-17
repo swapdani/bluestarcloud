@@ -17,8 +17,6 @@ import java.util.*;
 public abstract class ExcelService {
     private static final Logger logger = LogManager.getLogger(ExcelService.class);
 
-//    protected Map<String, Map<Integer, String>> allHeaderMap = new HashMap<>();
-
     public ExcelSheetData getExcelData(MultipartFile file, int sheetIndex) throws IOException {
         logger.info("Starting to get data from excel");
         try (InputStream inputStream = file.getInputStream();
