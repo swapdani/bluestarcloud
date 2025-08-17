@@ -1,9 +1,16 @@
 package org.bluestarcloud;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.bluestarcloud.mcoufo.McoUfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -13,36 +20,27 @@ import java.io.IOException;
 @RequestMapping("/api")
 public class ExcelController {
 
+    @Autowired
+    McoUfo mcoUfo;
+
     @PostMapping("/process")
     public ResponseEntity<byte[]> processExcel(
-            @RequestParam("textParam") String textParam,
+//            @RequestParam("textParam") String textParam,
             @RequestParam("file") MultipartFile file) throws IOException {
 
-        System.out.println("Inside controller");
-        // TODO: Read uploaded file if needed
-        // Workbook uploadedWorkbook = new XSSFWorkbook(file.getInputStream());
-
-        // Create a new Excel file
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Processed Data");
-
-        Row row = sheet.createRow(0);
-        row.createCell(0).setCellValue("Processed Text");
-        row.createCell(1).setCellValue(textParam);
-
-        // Add more processing logic here...
+        Workbook processedWorkbook = mcoUfo.processUfo(file);
 
         // Convert workbook to byte array
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        workbook.write(bos);
-        workbook.close();
+        processedWorkbook.write(bos);
+        processedWorkbook.close();
 
         byte[] excelBytes = bos.toByteArray();
 
         // Send file as download
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=processed.xlsx");
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName() + "_processed.xlsx");
 
         return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
     }

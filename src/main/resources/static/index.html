@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Excel Processor</title>
-  <style>
+    <title>Excel Processor</title>
+    <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -43,68 +43,86 @@
             background-color: grey;
             cursor: not-allowed;
         }
+
+
     </style>
 </head>
 <body>
 
 <div class="form-container">
-  <h1>Upload & Process UFO Data</h1>
-  <form id="uploadForm">
-    <label>Text Parameter:</label><br>
-    <input type="text" name="textParam" required><br>
+    <h1>Upload & Process UFO Data</h1>
+    <form id="uploadForm">
+        <!--        <label>Text Parameter:</label><br>-->
+        <!--        <input type="text" name="textParam" required><br>-->
 
-    <label>Excel File:</label><br>
-    <input type="file" id="fileInput" name="file" accept=".xlsx" required><br>
+        <label>Excel File:</label><br>
+        <input type="file" id="fileInput" name="file" accept=".xlsx" required><br>
 
-    <button id="submitBtn" type="submit" disabled>Upload & Process</button>
-  </form>
+        <button id="submitBtn" type="submit" disabled>Upload & Process</button>
+    </form>
 </div>
 
 <script>
-        const fileInput = document.getElementById("fileInput");
-        const submitBtn = document.getElementById("submitBtn");
+  const fileInput = document.getElementById("fileInput");
+  const submitBtn = document.getElementById("submitBtn");
 
-        // Enable button only if a file is selected
-        fileInput.addEventListener("change", () => {
-            submitBtn.disabled = fileInput.files.length === 0;
-        });
+  fileInput.addEventListener("change", () => {
+    submitBtn.disabled = fileInput.files.length === 0;
+  });
 
-        document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
+  document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-            submitBtn.disabled = true;
-            submitBtn.textContent = "Processing...";
+    const file = fileInput.files[0];
+    if (!file) { alert("Please select a file"); return; }
 
-            let formData = new FormData(e.target);
+    // Build FormData BEFORE disabling (disabled fields are skipped)
+    const originalName = file.name;
+    const formData = new FormData();
+    formData.append("file", file);
+    // If you have other fields, append them here too.
 
-            try {
-                let response = await fetch("/api/process", {
-                    method: "POST",
-                    body: formData
-                });
+    // Now disable during processing
+    fileInput.disabled = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Processing...";
 
-                if (response.ok) {
-                    let blob = await response.blob();
-                    let url = window.URL.createObjectURL(blob);
+    try {
+      const response = await fetch("/api/process", { method: "POST", body: formData });
 
-                    let a = document.createElement("a");
-                    a.href = url;
-                    a.download = "processed.xlsx";
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                } else {
-                    alert("Error processing file");
-                }
-            } catch (err) {
-                alert("Network error");
-            } finally {
-                // Button will be enabled again only if file is still selected
-                submitBtn.textContent = "Upload & Process";
-                submitBtn.disabled = fileInput.files.length === 0;
-            }
-        });
-    </script>
+      if (!response.ok) {
+        const text = await response.text().catch(() => "");
+        throw new Error(`Server error ${response.status}${text ? `: ${text}` : ""}`);
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+    let originalFile = fileInput.files[0].name;
+    let fileNameWithoutExt = originalFile.substring(0, originalFile.lastIndexOf(".")) || originalFile;
+    let fileExt = originalFile.substring(originalFile.lastIndexOf(".")) || ".xlsx";
+
+    // Append _processed
+    let processedFileName = fileNameWithoutExt + "_processed" + fileExt;
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = processedFileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      alert(`${processedFileName} downloaded`);
+    } catch (err) {
+      alert(err.message || "Error processing file");
+    } finally {
+      fileInput.disabled = false;
+      submitBtn.textContent = "Upload & Process";
+      submitBtn.disabled = fileInput.files.length === 0;
+    }
+  });
+
+</script>
 
 </body>
 </html>
