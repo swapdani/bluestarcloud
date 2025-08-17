@@ -25,8 +25,6 @@ public class McoUfoExcelService extends ExcelService {
 
     private static final Logger logger = LogManager.getLogger(McoUfoExcelService.class);
 
-//    private final String SALES_ORDER_HEADERS = "SALES_ORDER_HEADERS";
-
     @Autowired
     ExcelSheetData salesOrderData;
 
@@ -34,8 +32,6 @@ public class McoUfoExcelService extends ExcelService {
         List<SalesOrders> salesOrdersList = new ArrayList<>();
 
         salesOrderData = getExcelData(file, 0);
-//        Map<Integer, String> headers = salesOrderData.getHeaderMap();
-//        allHeaderMap.put(SALES_ORDER_HEADERS, headers);
 
         List<Map<String, String>> salesOrderRows = salesOrderData.getRows();
 
@@ -131,6 +127,8 @@ public class McoUfoExcelService extends ExcelService {
         iterateOverDataAndCreateSheet(sheet, data, headerCellStyle, highlightCellStyle, headers, new ArrayList<>());
         for (int i = 0; i < headerList.size(); i++)
             sheet.autoSizeColumn(i);
+
+        logger.info("Processed workbook created");
         return workbook;
     }
 }

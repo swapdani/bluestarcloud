@@ -20,6 +20,7 @@ public abstract class ExcelService {
 //    protected Map<String, Map<Integer, String>> allHeaderMap = new HashMap<>();
 
     public ExcelSheetData getExcelData(MultipartFile file, int sheetIndex) throws IOException {
+        logger.info("Starting to get data from excel");
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(inputStream)) {
 
@@ -45,6 +46,7 @@ public abstract class ExcelService {
                 }
                 rowDataList.add(rowData);
             }
+            logger.info("Excel data retrieved");
             return new ExcelSheetData(headerMap, rowDataList);
         }
     }

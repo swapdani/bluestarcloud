@@ -1,5 +1,7 @@
 package org.bluestarcloud;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.bluestarcloud.mcoufo.McoUfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api")
 public class ExcelController {
+    private static final Logger logger = LogManager.getLogger(ExcelController.class);
 
     @Autowired
     McoUfo mcoUfo;
@@ -28,8 +31,9 @@ public class ExcelController {
 //            @RequestParam("textParam") String textParam,
             @RequestParam("file") MultipartFile file) throws IOException {
 
+        logger.info("Excel controller reached");
         Workbook processedWorkbook = mcoUfo.processUfo(file);
-
+        logger.info("MCOUFO processing completed");
         // Convert workbook to byte array
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         processedWorkbook.write(bos);
@@ -42,6 +46,7 @@ public class ExcelController {
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName() + "_processed.xlsx");
 
+        logger.info("Sending processed file for download");
         return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
     }
 }
