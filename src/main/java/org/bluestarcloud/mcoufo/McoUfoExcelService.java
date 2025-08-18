@@ -2,10 +2,10 @@ package org.bluestarcloud.mcoufo;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.bluestarcloud.common.CellStyles;
 import org.bluestarcloud.common.ExcelService;
 import org.bluestarcloud.common.ExcelSheetData;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -88,14 +87,14 @@ public class McoUfoExcelService extends ExcelService {
     }
 
     protected Workbook writeProcessedSalesOrdersToExcel(List<SalesOrders> processedSalesOrders) {
-        XSSFWorkbook workbook = new XSSFWorkbook();
+        SXSSFWorkbook workbook = new SXSSFWorkbook(100);
         Sheet sheet = workbook.createSheet("UFO Data");
         Map<Long, Object[]> data = new TreeMap<>();
         List<String> headerList = new ArrayList<>();
-        XSSFCellStyle headerCellStyle = getHeaderCellStyle(workbook);
-        XSSFCellStyle cellStyle = getCellStyle(workbook);
+        CellStyle headerCellStyle = getHeaderCellStyle(workbook);
+        CellStyle cellStyle = getCellStyle(workbook);
 
-        Map<String, XSSFCellStyle> highlightCellStyle = new HashMap<>();
+        Map<String, CellStyle> highlightCellStyle = new HashMap<>();
         highlightCellStyle.put(CellStyles.NORMAL, cellStyle);
 
         Map<Integer, String> salesOrderHeaderMap = salesOrderData.getHeaderMap();
@@ -123,8 +122,8 @@ public class McoUfoExcelService extends ExcelService {
             data.put(rowCount++, row);
         }
         iterateOverDataAndCreateSheet(sheet, data, headerCellStyle, highlightCellStyle, headers, new ArrayList<>());
-        for (int i = 0; i < headerList.size(); i++)
-            sheet.autoSizeColumn(i);
+//        for (int i = 0; i < headerList.size(); i++)
+//            sheet.autoSizeColumn(i);
 
         logger.info("Processed workbook created");
         return workbook;

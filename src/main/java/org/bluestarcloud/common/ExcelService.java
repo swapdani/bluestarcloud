@@ -3,8 +3,8 @@ package org.bluestarcloud.common;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.IndexedColorMap;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,8 +103,8 @@ public abstract class ExcelService {
         return filePath;
     }
 
-    protected void iterateOverDataAndCreateSheet(Sheet sheet, Map<Long, Object[]> data, XSSFCellStyle headerCellStyle,
-                                                 Map<String, XSSFCellStyle> highlightCellStyle, List<Long> headerList, List<Long> highlightList) {
+    protected void iterateOverDataAndCreateSheet(Sheet sheet, Map<Long, Object[]> data, CellStyle headerCellStyle,
+                                                 Map<String, CellStyle> highlightCellStyle, List<Long> headerList, List<Long> highlightList) {
         //Iterate over data and write to sheet
         Set<Long> keySet = data.keySet();
         int rowNum = 0;
@@ -117,10 +117,10 @@ public abstract class ExcelService {
                 if (headerList.contains(key))
                     cell.setCellStyle(headerCellStyle);
                 else if (highlightList.contains(key)) {
-                    XSSFCellStyle yellowCellStyle = highlightCellStyle.get(CellStyles.YELLOW);
+                    CellStyle yellowCellStyle = highlightCellStyle.get(CellStyles.YELLOW);
                     cell.setCellStyle(yellowCellStyle);
                 } else {
-                    XSSFCellStyle cellStyle = highlightCellStyle.get(CellStyles.NORMAL);
+                    CellStyle cellStyle = highlightCellStyle.get(CellStyles.NORMAL);
                     cell.setCellStyle(cellStyle);
                 }
                 if (obj instanceof String)
@@ -134,7 +134,7 @@ public abstract class ExcelService {
                     if (keyObj.isPresent()) {
                         Object k = keyObj.get();
                         if (k instanceof String) {
-                            XSSFCellStyle cellStyle = highlightCellStyle.get(k);
+                            CellStyle cellStyle = highlightCellStyle.get(k);
                             if (cellStyle == null) {
                                 cellStyle = highlightCellStyle.get(CellStyles.NORMAL);
                             }
@@ -148,8 +148,8 @@ public abstract class ExcelService {
         }
     }
 
-    protected XSSFCellStyle getCellStyle(XSSFWorkbook workbook) {
-        XSSFCellStyle cellStyle = workbook.createCellStyle();
+    protected CellStyle getCellStyle(SXSSFWorkbook workbook) {
+        CellStyle cellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
         cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -162,8 +162,8 @@ public abstract class ExcelService {
         return cellStyle;
     }
 
-    protected XSSFCellStyle getHeaderCellStyle(XSSFWorkbook workbook) {
-        XSSFCellStyle headerStyle = workbook.createCellStyle();
+    protected CellStyle getHeaderCellStyle(SXSSFWorkbook workbook) {
+        CellStyle headerStyle = workbook.createCellStyle();
         Font headerFont = workbook.createFont();
 
         headerFont.setFontHeight((short) (9 * 20));
@@ -180,8 +180,8 @@ public abstract class ExcelService {
         return headerStyle;
     }
 
-    protected XSSFCellStyle getYellowCellStyle(XSSFWorkbook workbook) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getYellowCellStyle(XSSFWorkbook workbook) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font headerFont = workbook.createFont();
         headerFont.setFontHeight((short) (9 * 20));
         headerFont.setBold(true);
@@ -197,8 +197,8 @@ public abstract class ExcelService {
         return highlightCellStyle;
     }
 
-    protected XSSFCellStyle getRedCellStyle(XSSFWorkbook workbook) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getRedCellStyle(XSSFWorkbook workbook) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
         font.setColor(IndexedColors.DARK_RED.getIndex());
@@ -216,8 +216,8 @@ public abstract class ExcelService {
         return highlightCellStyle;
     }
 
-    protected XSSFCellStyle getAmberCellStyle(XSSFWorkbook workbook) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getAmberCellStyle(XSSFWorkbook workbook) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
         font.setColor(IndexedColors.BROWN.getIndex());
@@ -235,8 +235,8 @@ public abstract class ExcelService {
         return highlightCellStyle;
     }
 
-    protected XSSFCellStyle getGreenCellStyle(XSSFWorkbook workbook) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getGreenCellStyle(XSSFWorkbook workbook) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
         font.setColor(IndexedColors.DARK_GREEN.getIndex());
@@ -255,8 +255,8 @@ public abstract class ExcelService {
     }
 
 
-    protected XSSFCellStyle getPinkCellStyle(XSSFWorkbook workbook) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getPinkCellStyle(XSSFWorkbook workbook) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
 //        font.setColor(IndexedColors.MAROON.getIndex());
@@ -274,8 +274,8 @@ public abstract class ExcelService {
         return highlightCellStyle;
     }
 
-    protected XSSFCellStyle getBlueCellStyle(XSSFWorkbook workbook) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getBlueCellStyle(XSSFWorkbook workbook) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
 //        font.setColor(IndexedColors.DARK_BLUE.getIndex());
@@ -293,8 +293,8 @@ public abstract class ExcelService {
         return highlightCellStyle;
     }
 
-    protected XSSFCellStyle getLYellowCellStyle(XSSFWorkbook workbook) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getLYellowCellStyle(XSSFWorkbook workbook) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
 //        font.setColor(IndexedColors.MAROON.getIndex());
@@ -312,8 +312,8 @@ public abstract class ExcelService {
         return highlightCellStyle;
     }
 
-    protected XSSFCellStyle getLBlueCellStyle(XSSFWorkbook workbook, boolean isHeader) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getLBlueCellStyle(XSSFWorkbook workbook, boolean isHeader) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
         font.setBold(isHeader);
@@ -331,8 +331,8 @@ public abstract class ExcelService {
         return highlightCellStyle;
     }
 
-    protected XSSFCellStyle getLGreenCellStyle(XSSFWorkbook workbook, boolean isHeader) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getLGreenCellStyle(XSSFWorkbook workbook, boolean isHeader) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
         font.setBold(isHeader);
@@ -350,8 +350,8 @@ public abstract class ExcelService {
         return highlightCellStyle;
     }
 
-    protected XSSFCellStyle getLPinkCellStyle(XSSFWorkbook workbook, boolean isHeader) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getLPinkCellStyle(XSSFWorkbook workbook, boolean isHeader) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
         font.setBold(isHeader);
@@ -369,8 +369,8 @@ public abstract class ExcelService {
         return highlightCellStyle;
     }
 
-    protected XSSFCellStyle getLOrangeCellStyle(XSSFWorkbook workbook, boolean isHeader) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getLOrangeCellStyle(XSSFWorkbook workbook, boolean isHeader) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
         font.setBold(isHeader);
@@ -388,8 +388,8 @@ public abstract class ExcelService {
         return highlightCellStyle;
     }
 
-    protected XSSFCellStyle getBGreenCellStyle(XSSFWorkbook workbook, boolean isHeader) {
-        XSSFCellStyle highlightCellStyle = workbook.createCellStyle();
+    protected CellStyle getBGreenCellStyle(XSSFWorkbook workbook, boolean isHeader) {
+        CellStyle highlightCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontHeight((short) (9 * 20));
         font.setBold(isHeader);
