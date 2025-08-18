@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.bluestarcloud.common.CellStyles;
 import org.bluestarcloud.common.ExcelService;
@@ -124,8 +125,10 @@ public class McoUfoExcelService extends ExcelService {
         }
         iterateOverDataAndCreateSheet(sheet, data, headerCellStyle, highlightCellStyle, headers, new ArrayList<>());
 
-//        for (int i = 0; i < headerList.size(); i++)
-//            sheet.autoSizeColumn(i);
+        for (int i = 0; i < headerList.size(); i++) {
+            ((SXSSFSheet) sheet).trackColumnForAutoSizing(i);
+            sheet.autoSizeColumn(i);
+        }
 
         logger.info("Processed workbook created");
         return workbook;
