@@ -7,43 +7,56 @@ import org.apache.poi.xssf.usermodel.IndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public abstract class ExcelService {
     private static final Logger logger = LogManager.getLogger(ExcelService.class);
 
-    public ExcelSheetData getExcelData(MultipartFile file, int sheetIndex) throws IOException {
+    @Autowired
+    ExcelStreamingReader excelStreamingReader;
+
+//    public ExcelSheetData getExcelData(MultipartFile file, int sheetIndex) throws IOException {
+//        logger.info("Starting to get data from excel");
+//        try (InputStream inputStream = file.getInputStream();
+//             Workbook workbook = new XSSFWorkbook(inputStream)) {
+//
+//            Sheet sheet = workbook.getSheetAt(sheetIndex);
+//
+//            Map<Integer, String> headerMap = new HashMap<>();
+//            Row headerRow = sheet.getRow(0);
+//            for (int c = 0; c < headerRow.getLastCellNum(); c++) {
+//                headerMap.put(c, getCellValueAsString(headerRow.getCell(c)));
+//            }
+//
+//            List<Map<String, String>> rowDataList = new ArrayList<>();
+//            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+//                Row row = sheet.getRow(i);
+//                if (row == null) continue;
+//                Map<String, String> rowData = new HashMap<>();
+//
+//                for (int j = 0; j < headerRow.getLastCellNum(); j++) {
+//                    rowData.put(headerMap.get(j), getCellValueAsString(row.getCell(j)));
+//
+//                }
+//                rowDataList.add(rowData);
+//            }
+//            logger.info("Excel data retrieved");
+//            return new ExcelSheetData(headerMap, rowDataList);
+//        }
+//    }
+
+    public ExcelSheetData getExcelData(MultipartFile file, int sheetIndex) throws Exception {
         logger.info("Starting to get data from excel");
-        try (InputStream inputStream = file.getInputStream();
-             Workbook workbook = new XSSFWorkbook(inputStream)) {
-
-            Sheet sheet = workbook.getSheetAt(sheetIndex);
-
-            Map<Integer, String> headerMap = new HashMap<>();
-            Row headerRow = sheet.getRow(0);
-            for (int c = 0; c < headerRow.getLastCellNum(); c++) {
-                headerMap.put(c, getCellValueAsString(headerRow.getCell(c)));
-            }
-
-            List<Map<String, String>> rowDataList = new ArrayList<>();
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row == null) continue;
-                Map<String, String> rowData = new HashMap<>();
-
-                for (int j = 0; j < headerRow.getLastCellNum(); j++) {
-                    rowData.put(headerMap.get(j), getCellValueAsString(row.getCell(j)));
-
-                }
-                rowDataList.add(rowData);
-            }
-            logger.info("Excel data retrieved");
-            return new ExcelSheetData(headerMap, rowDataList);
+        try (InputStream inputStream = file.getInputStream()) {
+            return excelStreamingReader.readExcel(inputStream, sheetIndex);
         }
     }
 

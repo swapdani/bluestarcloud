@@ -28,7 +28,7 @@ public class McoUfoExcelService extends ExcelService {
     @Autowired
     ExcelSheetData salesOrderData;
 
-    public List<SalesOrders> getSalesOrdersData(MultipartFile file) throws IOException {
+    public List<SalesOrders> getSalesOrdersData(MultipartFile file) throws Exception {
         List<SalesOrders> salesOrdersList = new ArrayList<>();
 
         salesOrderData = getExcelData(file, 0);
@@ -46,7 +46,7 @@ public class McoUfoExcelService extends ExcelService {
         return salesOrdersList;
     }
 
-    public List<PartAvailability> getPartAvailabilityData(MultipartFile file) throws IOException {
+    public List<PartAvailability> getPartAvailabilityData(MultipartFile file) throws Exception {
         List<PartAvailability> partAvailabilityList = new ArrayList<>();
 
         ExcelSheetData partAvailabilityData = getExcelData(file, 1);
@@ -60,7 +60,7 @@ public class McoUfoExcelService extends ExcelService {
         return partAvailabilityList;
     }
 
-    public List<GitTransit> getGitTransitData(MultipartFile file) throws IOException {
+    public List<GitTransit> getGitTransitData(MultipartFile file) throws Exception {
         List<GitTransit> gitTransitList = new ArrayList<>();
 
         ExcelSheetData gitTransitData = getExcelData(file, 2);
