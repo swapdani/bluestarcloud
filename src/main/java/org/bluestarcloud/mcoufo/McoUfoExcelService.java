@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -86,46 +87,48 @@ public class McoUfoExcelService extends ExcelService {
         return gitTransitList;
     }
 
-    protected Workbook writeProcessedSalesOrdersToExcel(List<SalesOrders> processedSalesOrders) {
-        SXSSFWorkbook workbook = new SXSSFWorkbook(100);
-        Sheet sheet = workbook.createSheet("UFO Data");
-        Map<Long, Object[]> data = new TreeMap<>();
-        List<String> headerList = new ArrayList<>();
-        CellStyle headerCellStyle = getHeaderCellStyle(workbook);
-        CellStyle cellStyle = getCellStyle(workbook);
+    protected Workbook writeProcessedSalesOrdersToExcel(List<SalesOrders> processedSalesOrders) throws IOException {
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook(100)) {
+            Sheet sheet = workbook.createSheet("UFO Data");
+            Map<Long, Object[]> data = new TreeMap<>();
+            List<String> headerList = new ArrayList<>();
+            CellStyle headerCellStyle = getHeaderCellStyle(workbook);
+            CellStyle cellStyle = getCellStyle(workbook);
 
-        Map<String, CellStyle> highlightCellStyle = new HashMap<>();
-        highlightCellStyle.put(CellStyles.NORMAL, cellStyle);
+            Map<String, CellStyle> highlightCellStyle = new HashMap<>();
+            highlightCellStyle.put(CellStyles.NORMAL, cellStyle);
 
-        Map<Integer, String> salesOrderHeaderMap = salesOrderData.getHeaderMap();
+            Map<Integer, String> salesOrderHeaderMap = salesOrderData.getHeaderMap();
 
-        for (int i = 0; i < salesOrderHeaderMap.size(); i++) {
-            headerList.add(salesOrderHeaderMap.get(i));
-        }
-        headerList.add("MCO Remarks");
+            for (int i = 0; i < salesOrderHeaderMap.size(); i++) {
+                headerList.add(salesOrderHeaderMap.get(i));
+            }
+            headerList.add("MCO Remarks");
 
-        Object[] headerArray = headerList.toArray();
-        data.put(1L, headerArray);
+            Object[] headerArray = headerList.toArray();
+            data.put(1L, headerArray);
 
-        List<Long> headers = new ArrayList<>();
-        headers.add(1L);
+            List<Long> headers = new ArrayList<>();
+            headers.add(1L);
 
-        long rowCount = 2L;
-        for (SalesOrders salesOrders : processedSalesOrders) {
-            String ufoQty = Utils.getCorrectDecimalForDouble(salesOrders.getUfoQty(), 3);
-            String ufoValue = Utils.getCorrectDecimalForDouble(salesOrders.getUfoValue(), 2);
-            Object[] row = new Object[]{salesOrders.getSalesOrder(), salesOrders.getSoItemDate(), salesOrders.getMaterialNo(),
-                    salesOrders.getPartDesc(), ufoQty, salesOrders.getUom(), salesOrders.getDivision(),
-                    salesOrders.getPlant(), salesOrders.getPlantDesc(), ufoValue,
-                    salesOrders.getSoldToPartyName(), salesOrders.getSalesEmployeeName(), salesOrders.getSalesOffice(),
-                    salesOrders.getSalesOfficeDesc(), salesOrders.getSalesOrderType(), salesOrders.getMcoRemarks()};
-            data.put(rowCount++, row);
-        }
-        iterateOverDataAndCreateSheet(sheet, data, headerCellStyle, highlightCellStyle, headers, new ArrayList<>());
+            long rowCount = 2L;
+            for (SalesOrders salesOrders : processedSalesOrders) {
+                String ufoQty = Utils.getCorrectDecimalForDouble(salesOrders.getUfoQty(), 3);
+                String ufoValue = Utils.getCorrectDecimalForDouble(salesOrders.getUfoValue(), 2);
+                Object[] row = new Object[]{salesOrders.getSalesOrder(), salesOrders.getSoItemDate(), salesOrders.getMaterialNo(),
+                        salesOrders.getPartDesc(), ufoQty, salesOrders.getUom(), salesOrders.getDivision(),
+                        salesOrders.getPlant(), salesOrders.getPlantDesc(), ufoValue,
+                        salesOrders.getSoldToPartyName(), salesOrders.getSalesEmployeeName(), salesOrders.getSalesOffice(),
+                        salesOrders.getSalesOfficeDesc(), salesOrders.getSalesOrderType(), salesOrders.getMcoRemarks()};
+                data.put(rowCount++, row);
+            }
+            iterateOverDataAndCreateSheet(sheet, data, headerCellStyle, highlightCellStyle, headers, new ArrayList<>());
+
 //        for (int i = 0; i < headerList.size(); i++)
 //            sheet.autoSizeColumn(i);
 
-        logger.info("Processed workbook created");
-        return workbook;
+            logger.info("Processed workbook created");
+            return workbook;
+        }
     }
 }

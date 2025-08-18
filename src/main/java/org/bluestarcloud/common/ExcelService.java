@@ -10,7 +10,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -23,57 +22,11 @@ public abstract class ExcelService {
     @Autowired
     ExcelStreamingReader excelStreamingReader;
 
-//    public ExcelSheetData getExcelData(MultipartFile file, int sheetIndex) throws IOException {
-//        logger.info("Starting to get data from excel");
-//        try (InputStream inputStream = file.getInputStream();
-//             Workbook workbook = new XSSFWorkbook(inputStream)) {
-//
-//            Sheet sheet = workbook.getSheetAt(sheetIndex);
-//
-//            Map<Integer, String> headerMap = new HashMap<>();
-//            Row headerRow = sheet.getRow(0);
-//            for (int c = 0; c < headerRow.getLastCellNum(); c++) {
-//                headerMap.put(c, getCellValueAsString(headerRow.getCell(c)));
-//            }
-//
-//            List<Map<String, String>> rowDataList = new ArrayList<>();
-//            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-//                Row row = sheet.getRow(i);
-//                if (row == null) continue;
-//                Map<String, String> rowData = new HashMap<>();
-//
-//                for (int j = 0; j < headerRow.getLastCellNum(); j++) {
-//                    rowData.put(headerMap.get(j), getCellValueAsString(row.getCell(j)));
-//
-//                }
-//                rowDataList.add(rowData);
-//            }
-//            logger.info("Excel data retrieved");
-//            return new ExcelSheetData(headerMap, rowDataList);
-//        }
-//    }
-
     public ExcelSheetData getExcelData(MultipartFile file, int sheetIndex) throws Exception {
         logger.info("Starting to get data from excel");
         try (InputStream inputStream = file.getInputStream()) {
             return excelStreamingReader.readExcel(inputStream, sheetIndex);
         }
-    }
-
-    private String getCellValueAsString(Cell cell) {
-        if (cell == null) return "";
-        if (cell.getCellType() == CellType.STRING) return cell.getStringCellValue();
-
-
-        if (cell.getCellType() == CellType.NUMERIC) {
-            double numericValue = cell.getNumericCellValue();
-            if (numericValue == (long) numericValue) {
-                return String.valueOf((long) numericValue); // remove .0
-            } else {
-                return String.valueOf(numericValue); // keep decimal part
-            }
-        }
-        return "";
     }
 
     protected double parseDoubleSafe(String value) {
@@ -84,23 +37,6 @@ public abstract class ExcelService {
             logger.error("Invalid number format: {}", value);
             throw new IllegalStateException("Failed to process file", e);
         }
-    }
-
-    protected String writeToExcelFile(String filePath, XSSFWorkbook workbook) {
-        try {
-            //Write the workbook in file system
-            filePath = filePath.replace(".xlsx", "");
-            filePath = filePath.replace(".XLSX", "");
-            filePath = filePath.concat("_Processed.xlsx");
-            FileOutputStream out = new FileOutputStream(filePath);
-            workbook.write(out);
-            out.close();
-            workbook.close();
-        } catch (Exception e) {
-            logger.error("Exception: ", e);
-            throw new IllegalStateException("Failed to process file", e);
-        }
-        return filePath;
     }
 
     protected void iterateOverDataAndCreateSheet(Sheet sheet, Map<Long, Object[]> data, CellStyle headerCellStyle,
