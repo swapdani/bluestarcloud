@@ -70,7 +70,7 @@
 
     <!-- Dropdown + file form -->
     <form id="uploadForm">
-        <label>Select Type:</label>
+        <label>Select Report:</label>
         <select id="typeDropdown" name="typeParam" required>
             <!-- Controlled by logged-in user -->
             <option th:if="${#authentication.name == 'mco'}" value="UFO" selected>UFO</option>
