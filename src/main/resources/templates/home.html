@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>BlueStar Cloud</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+            width: 600px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 15px 20px; /* row-gap, column-gap */
+            align-items: center;
+        }
+
+        label {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        input[type="file"],
+        select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            grid-column: span 2; /* make button span across both columns */
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h1>Upload & Process Reports</h1>
+
+    <!-- Dropdown + file form -->
+    <form id="uploadForm">
+        <label>Select Type:</label>
+        <select id="typeDropdown" name="typeParam" required>
+            <!-- Controlled by logged-in user -->
+            <option th:if="${#authentication.name == 'mco'}" value="UFO" selected>UFO</option>
+            <option th:if="${#authentication.name == 'manjushree'}" value="Distribution">Distribution</option>
+            <option th:if="${#authentication.name == 'manjushree'}" value="UFO">UFO</option>
+        </select>
+
+        <th:block th:if="${#authentication.name == 'manjushree'}">
+            <label>Rework:</label>
+            <select id="reworkDropDown" name="typeParam" required>
+                <option value="true" selected>Yes</option>
+                <option value="false">No</option>
+            </select>
+        </th:block>
+
+        <label>Excel File:</label>
+        <input type="file" id="fileInput" name="file" accept=".xlsx" required>
+
+        <button id="submitBtn" type="submit" disabled>Upload & Process</button>
+
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    </form>
+</div>
+
+<script>
+        const fileInput = document.getElementById("fileInput");
+        const typeDropdown = document.getElementById("typeDropdown");
+        const reworkDropDown = document.getElementById("reworkDropDown");
+        const submitBtn = document.getElementById("submitBtn");
+        const form = document.getElementById("uploadForm");
+
+        const token = document.querySelector('meta[name="_csrf"]').content;
+        const header = document.querySelector('meta[name="_csrf_header"]').content;
+
+        fileInput.addEventListener("change", () => {
+            submitBtn.disabled = fileInput.files.length === 0;
+        });
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a file");
+                return;
+            }
+
+            const typeValue = typeDropdown.value;
+            const rework = document.getElementById("reworkDropDown")
+                ? document.getElementById("reworkDropDown").value
+                : "false";
+
+            // Build FormData BEFORE disabling fields
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("typeParam", typeValue);
+            formData.append("reWork", rework);
+
+            // Disable all form fields during processing
+            Array.from(form.elements).forEach(el => el.disabled = true);
+            submitBtn.textContent = "Processing...";
+
+            try {
+                const response = await fetch("/api/process", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        [header]: token
+                    }
+                });
+
+                if (!response.ok) {
+                    const text = await response.text().catch(() => "");
+                    throw new Error(`Server error ${response.status}${text ? `: ${text}` : ""}`);
+                }
+
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                let originalFile = file.name;
+                let fileNameWithoutExt = originalFile.substring(0, originalFile.lastIndexOf(".")) || originalFile;
+                let fileExt = originalFile.substring(originalFile.lastIndexOf(".")) || ".xlsx";
+
+                let processedFileName = fileNameWithoutExt + "_processed" + fileExt;
+
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = processedFileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                alert(`${processedFileName} downloaded`);
+            } catch (err) {
+                alert(err.message || "Error processing file");
+            } finally {
+                // Enable all form fields again
+                Array.from(form.elements).forEach(el => el.disabled = false);
+                submitBtn.textContent = "Upload & Process";
+                submitBtn.disabled = fileInput.files.length === 0;
+            }
+        });
+    </script>
+</body>
+</html>
