@@ -106,6 +106,23 @@
         const token = document.querySelector('meta[name="_csrf"]').content;
         const header = document.querySelector('meta[name="_csrf_header"]').content;
 
+     // ✅ Handle enabling/disabling rework dropdown
+        if (reworkDropDown) {
+            const toggleRework = () => {
+                if (typeDropdown.value === "UFO") {
+                    reworkDropDown.disabled = true;
+                } else {
+                    reworkDropDown.disabled = false;
+                }
+            };
+
+            // Run once at page load
+            toggleRework();
+
+            // Run whenever dropdown changes
+            typeDropdown.addEventListener("change", toggleRework);
+        }
+
         fileInput.addEventListener("change", () => {
             submitBtn.disabled = fileInput.files.length === 0;
         });
@@ -169,7 +186,18 @@
                 alert(err.message || "Error processing file");
             } finally {
                 // Enable all form fields again
-                Array.from(form.elements).forEach(el => el.disabled = false);
+                Array.from(form.elements).forEach(el => {
+                    // Don't force-enable rework dropdown here
+                    if (el !== reworkDropDown) {
+                    el.disabled = false;
+                }
+                });
+
+                // Run toggleRework again to restore proper state
+                if (reworkDropDown) {
+                    toggleRework();
+                }
+
                 submitBtn.textContent = "Upload & Process";
                 submitBtn.disabled = fileInput.files.length === 0;
             }
