@@ -3,7 +3,6 @@ package org.bluestarcloud;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.bluestarcloud.distribution.DistributionProcessor;
 import org.bluestarcloud.mcoufo.McoUfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class ExcelController {
             @RequestParam("file") MultipartFile file
     ) throws IOException {
 
-        logger.info("Excel controller reached, " + typeParam);
+        logger.info("Processing started for report: " + typeParam + ", reWork: " + reWork);
 
         Workbook processedWorkbook;
 
@@ -47,7 +46,12 @@ public class ExcelController {
         } else if ("Distribution".equalsIgnoreCase(typeParam)) {
             processedWorkbook = distributionProcessor.processDistribution(file, reWork);
         } else {
-            processedWorkbook = new SXSSFWorkbook(100);
+            String error = "Invalid report type";
+            logger.error(error);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE)
+                    .body(error.getBytes());
         }
 
         logger.info("Processing completed");
