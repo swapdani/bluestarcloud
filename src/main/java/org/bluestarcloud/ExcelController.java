@@ -32,18 +32,18 @@ public class ExcelController {
 
     @PostMapping("/process")
     public ResponseEntity<byte[]> processExcel(
-            @RequestParam("typeParam") String typeParam,
+            @RequestParam("reportType") String reportType,
             @RequestParam("reWork") boolean reWork,
             @RequestParam("file") MultipartFile file
     ) throws IOException {
 
-        logger.info("Processing started for report: " + typeParam + ", reWork: " + reWork);
+        logger.info("Processing started for report: " + reportType + ", reWork: " + reWork);
 
         Workbook processedWorkbook;
 
-        if ("UFO".equalsIgnoreCase(typeParam)) {
+        if ("UFO".equalsIgnoreCase(reportType)) {
             processedWorkbook = mcoUfo.processUfo(file);
-        } else if ("Distribution".equalsIgnoreCase(typeParam)) {
+        } else if ("Distribution".equalsIgnoreCase(reportType)) {
             processedWorkbook = distributionProcessor.processDistribution(file, reWork);
         } else {
             String error = "Invalid report type";

@@ -71,7 +71,7 @@
     <!-- Dropdown + file form -->
     <form id="uploadForm">
         <label>Select Report:</label>
-        <select id="typeDropdown" name="typeParam" required>
+        <select id="reportTypeDropdown" name="reportType" required>
             <!-- Controlled by logged-in user -->
             <option th:if="${#authentication.name == 'mco'}" value="UFO" selected>UFO</option>
             <option th:if="${#authentication.name == 'manjushree'}" value="Distribution">Distribution</option>
@@ -80,7 +80,7 @@
 
         <th:block th:if="${#authentication.name == 'manjushree'}">
             <label>Rework:</label>
-            <select id="reworkDropDown" name="typeParam" required>
+            <select id="reworkDropDown" name="rework" required>
                 <option value="true" selected>Yes</option>
                 <option value="false">No</option>
             </select>
@@ -98,7 +98,7 @@
 
 <script>
         const fileInput = document.getElementById("fileInput");
-        const typeDropdown = document.getElementById("typeDropdown");
+        const reportTypeDropdown = document.getElementById("reportTypeDropdown");
         const reworkDropDown = document.getElementById("reworkDropDown");
         const submitBtn = document.getElementById("submitBtn");
         const form = document.getElementById("uploadForm");
@@ -108,7 +108,7 @@
 
         function toggleRework() {
             if (reworkDropDown) {
-                if (typeDropdown.value === "UFO") {
+                if (reportTypeDropdown.value === "UFO") {
                     reworkDropDown.disabled = true;
                 } else {
                     reworkDropDown.disabled = false;
@@ -121,7 +121,7 @@
 
         // Run whenever dropdown changes
         if (reworkDropDown) {
-             typeDropdown.addEventListener("change", toggleRework);
+             reportTypeDropdown.addEventListener("change", toggleRework);
         }
 
         fileInput.addEventListener("change", () => {
@@ -137,7 +137,7 @@
                 return;
             }
 
-            const typeValue = typeDropdown.value;
+            const reportType = reportTypeDropdown.value;
             const rework = document.getElementById("reworkDropDown")
                 ? document.getElementById("reworkDropDown").value
                 : "false";
@@ -145,7 +145,7 @@
             // Build FormData BEFORE disabling fields
             const formData = new FormData();
             formData.append("file", file);
-            formData.append("typeParam", typeValue);
+            formData.append("reportType", reportType);
             formData.append("reWork", rework);
 
             // Disable all form fields during processing
